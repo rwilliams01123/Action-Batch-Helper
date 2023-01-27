@@ -301,7 +301,7 @@ class BatchHelper:
             while not ready_for_new_batch:
                 ready_for_new_batch = self.find_batch_queue_capacity()
 
-            print(f'Submitting new batch.')
+            print(f'Submitting new batch.\n')
             # submit new batch(es)
             self.submit_action_batches()
 
@@ -309,7 +309,8 @@ class BatchHelper:
 
         return True
 
-    def ActionBatch(self, dashboard_session, organizationId, new_actions):
+
+def ActionBatch(dashboard_session, organizationId, new_actions):
         print('\nPreparing action batch call for '
             f'{len(new_actions)} total actions\n')
 
@@ -317,7 +318,6 @@ class BatchHelper:
             dashboard_session,
             organizationId,
             new_actions,
-            linear_new_batches=True,
             actions_per_new_batch=100)
 
         test_helper.prepare()
@@ -326,8 +326,8 @@ class BatchHelper:
 
         print(f'Helper status is {test_helper.status}')
 
-        batches_report = dashboard.organizations.getOrganizationActionBatches(
-            organization_id)
+        batches_report = dashboard_session.organizations.getOrganizationActionBatches(
+            organizationId)
         new_batches_statuses = [
             {
                 'id': batch['id'],
