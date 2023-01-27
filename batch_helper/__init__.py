@@ -309,3 +309,38 @@ class BatchHelper:
 
         return True
 
+    def ActionBatch(self, dashboard_session, organizationId, new_actions):
+        print('\nPreparing action batch call for '
+            f'{len(new_actions)} total actions\n')
+
+        test_helper = BatchHelper(
+            dashboard_session,
+            organizationId,
+            new_actions,
+            linear_new_batches=True,
+            actions_per_new_batch=100)
+
+        test_helper.prepare()
+        test_helper.generate_preview()
+        test_helper.execute()
+
+        print(f'Helper status is {test_helper.status}')
+
+        batches_report = dashboard.organizations.getOrganizationActionBatches(
+            organization_id)
+        new_batches_statuses = [
+            {
+                'id': batch['id'],
+                'status': batch['status']
+            } for batch in batches_report
+            if batch['id'] in test_helper.submitted_new_batches_ids
+        ]
+        failed_batch_ids = [
+            batch['id'] for batch in new_batches_statuses
+            if batch['status']['failed']
+        ]
+
+        if failed_batch_ids:
+            print(f'Failed batch IDs are as follows: {failed_batch_ids}')
+        else:
+            print('\n\n\n')
